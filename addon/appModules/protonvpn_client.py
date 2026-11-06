@@ -82,6 +82,12 @@ NAMED_ROLES = {
 	controlTypes.Role.MENUITEM,
 }
 
+# Controls whose explanation is inside them, below their label.
+DESCRIBED_ROLES = {
+	controlTypes.Role.RADIOBUTTON,
+	controlTypes.Role.CHECKBOX,
+}
+
 SPEED_TEXT = re.compile(r"/s$")
 MASKED_TEXT = re.compile(r"^[*.]+$")
 TYPE_NAME = re.compile(r"^ProtonVPN\.Client\.")
@@ -161,6 +167,16 @@ def _sectionHeading(element):
 class ProtonControl(UIA):
 	"""A Proton VPN control whose name and description are completed from its visible text."""
 
+	# Building a name asks Proton VPN for text several times; NVDA reads a name many times while reporting
+	# one focus change, so keep the result until NVDA's next cycle.
+	_cache_name = True
+	_cache_description = True
+	_cache_protonClassName = True
+
+	def _get_isSettingsRow(self):
+		className = self.protonClassName
+		return className == "Button" or className.endswith("SettingsCard")
+
 	def _get_protonClassName(self):
 		return self._getUIACacheablePropertyValue(UIAHandler.UIA_ClassNamePropertyId) or ""
 
@@ -205,11 +221,13 @@ class ProtonControl(UIA):
 			return texts[0] if texts else None
 		if self.role not in NAMED_ROLES:
 			return None
-		texts = _texts(self.UIAElement)
 		if not name:
-			return self._nameForUnlabeled(automationId, texts)
-		isRow = self.protonClassName == "Button" or self.protonClassName.endswith("SettingsCard")
-		if isRow and texts and texts[0] == name:
+			return self._nameForUnlabeled(automationId, _texts(self.UIAElement))
+		# Only settings rows show a state next to their label; skip the search for everything else.
+		if not self.isSettingsRow:
+			return None
+		texts = _texts(self.UIAElement)
+		if texts and texts[0] == name:
 			# Settings rows: add the state shown next to the label, such as "Kill switch, Off".
 			states = [text for text in texts[1:] if len(text) <= SHORT_TEXT and text != name]
 			if states:
@@ -277,18 +295,16 @@ class ProtonControl(UIA):
 		return ", ".join([texts[0]] + [text for text in texts[1:] if SPEED_TEXT.search(text)])
 
 	def _betterDescription(self):
-		if self.role not in NAMED_ROLES:
+		if self.protonClassName in ("ToggleSwitch", "ComboBox"):
+			# Their explanation is a text block next to them, not inside them.
+			return _nearbyExplanation(self.UIAElement)
+		if self.role not in DESCRIBED_ROLES and not (self.role == controlTypes.Role.BUTTON and self.isSettingsRow):
 			return None
 		if (self.UIAAutomationId or "").startswith(("Connect_to_", "Disconnect_from_")):
 			return None
 		texts = [_clean(text) for text in _texts(self.UIAElement)[1:]]
 		explanations = [text for text in texts if len(text) > SHORT_TEXT]
-		if explanations:
-			return " ".join(explanations)
-		if self.role in (controlTypes.Role.TOGGLEBUTTON, controlTypes.Role.COMBOBOX, controlTypes.Role.BUTTON):
-			if self.protonClassName in ("ToggleSwitch", "ComboBox"):
-				return _nearbyExplanation(self.UIAElement)
-		return None
+		return " ".join(explanations) if explanations else None
 
 	def doAction(self, index=None):
 		# Proton VPN's settings rows report that they can be invoked, then fail with "No such interface
@@ -325,15 +341,15 @@ class AppModule(appModuleHandler.AppModule):
 
 	def _readPopup(self, obj):
 		"""Read the text of a flyout or message when focus first moves into it; menus read themselves."""
-		walker = _rawWalker()
-		element = obj.UIAElement
+		# NVDA already knows the focus's ancestors; a flyout is one of them, shown as a dialog.
 		popup = None
-		for _level in range(10):
-			element = walker.GetParentElement(element)
-			if not element:
-				break
-			if element.CurrentClassName == "Popup":
-				popup = element
+		for ancestor in reversed(api.getFocusAncestors()):
+			if (
+				isinstance(ancestor, ProtonControl)
+				and ancestor.role == controlTypes.Role.DIALOG
+				and ancestor.protonClassName == "Popup"
+			):
+				popup = ancestor.UIAElement
 				break
 		if not popup:
 			self._lastPopup = None
