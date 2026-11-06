@@ -1,0 +1,56 @@
+# Publishes a GitHub release with the add-on when a version tag such as v1.0.0 is pushed.
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install the development tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Check the tag matches the manifest
+        shell: python
+        run: |
+          import configparser, os, sys
+          tag = os.environ["GITHUB_REF_NAME"].removeprefix("v")
+          manifest = configparser.ConfigParser()
+          manifest.read_string("[m]\n" + open("addon/manifest.ini", encoding="utf-8").read())
+          version = manifest["m"]["version"].strip('"')
+          if tag != version:
+              sys.exit(f"Tag {tag} and addon/manifest.ini {version} must match.")
+
+      - name: Lint, test and build
+        run: |
+          ruff check .
+          ruff format --check .
+          pytest
+          python build_addon.py
+
+      - name: Create the GitHub release with the add-on
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          # The release notes are this version's section of CHANGELOG.md.
+          awk -v v="$version" '$0 ~ "^## \\[" v "\\]" {found=1; next} found && /^## \[/ {exit} found' \
+            CHANGELOG.md > notes.md
+          sha256sum dist/*.nvda-addon >> notes.md
+          gh release create "$GITHUB_REF_NAME" dist/*.nvda-addon \
+            --title "Proton VPN Accessibility $version" --notes-file notes.md

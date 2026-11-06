@@ -1,0 +1,7 @@
+line-length = 120
+target-version = "py311"
+# NVDA provides the gettext function _ to add-ons as a builtin.
+builtins = ["_"]
+
+[lint]
+select = ["E", "F", "W", "I", "B", "UP"]

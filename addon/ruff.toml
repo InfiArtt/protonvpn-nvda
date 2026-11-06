@@ -1,0 +1,9 @@
+# The add-on follows NVDA's coding standards, which indent with tabs.
+extend = "../ruff.toml"
+
+[format]
+indent-style = "tab"
+
+[lint]
+# Tabs count as one column, so long lines are judged by the formatter instead.
+ignore = ["E501", "W191"]

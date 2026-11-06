@@ -1,0 +1,90 @@
+# Indonesian translation of Proton VPN Accessibility.
+# Copyright (C) 2026 InfiArtt
+# This file is distributed under the same license as the Proton VPN Accessibility add-on.
+msgid ""
+msgstr ""
+"Project-Id-Version: protonVpnAccess 1.0.0\n"
+"Language: id\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Translators: Name of the menu button in Proton VPN's title bar.
+msgid "Menu"
+msgstr "Menu"
+
+#. Translators: Name of the button that goes back to the previous Proton VPN settings page.
+msgid "Back"
+msgstr "Kembali"
+
+#. Translators: Name of the button that closes Proton VPN's settings.
+msgid "Close settings"
+msgstr "Tutup pengaturan"
+
+#. Translators: Name of the button that closes a Proton VPN message.
+msgid "Close"
+msgstr "Tutup"
+
+#. Translators: Name of the button that explains a Proton VPN list, such as Profiles.
+msgid "More information"
+msgstr "Informasi lebih lanjut"
+
+#. Translators: Name of the grip that changes the width of Proton VPN's sidebar.
+msgid "Resize sidebar"
+msgstr "Ubah lebar bilah samping"
+
+#. Translators: Name of the tab listing all countries in Proton VPN.
+msgid "All countries"
+msgstr "Semua negara"
+
+#. Translators: Name of the Secure Core countries tab in Proton VPN.
+msgid "Secure Core"
+msgstr "Secure Core"
+
+#. Translators: Name of the P2P countries tab in Proton VPN.
+msgid "P2P"
+msgstr "P2P"
+
+#. Translators: Name of the Tor countries tab in Proton VPN.
+msgid "Tor"
+msgstr "Tor"
+
+#. Translators: Said instead of an IP address that Proton VPN hides with asterisks.
+msgid "hidden"
+msgstr "disembunyikan"
+
+#. Translators: A Proton VPN option and the group it belongs to, e.g. "WireGuard, Reliability (TCP)".
+msgid "{option}, {group}"
+msgstr "{option}, {group}"
+
+#. Translators: Name of the Proton VPN button that shows or hides your real IP address.
+msgid "Show or hide your IP"
+msgstr "Tampilkan atau sembunyikan IP Anda"
+
+#. Translators: Proton VPN button that disconnects from a place, e.g. "Disconnect from Singapore".
+msgid "Disconnect from {place}"
+msgstr "Putuskan dari {place}"
+
+#. Translators: Proton VPN button that connects to a place, e.g. "Connect to Singapore".
+msgid "Connect to {place}"
+msgstr "Sambungkan ke {place}"
+
+#. Translators: Proton VPN button that shows or hides the servers of a place, e.g. "Servers in Singapore".
+msgid "Servers in {place}"
+msgstr "Server di {place}"
+
+#. Translators: Proton VPN button that opens a menu for a connection or profile, e.g. "More options for Gaming".
+msgid "More options for {place}"
+msgstr "Opsi lain untuk {place}"
+
+#. Translators: Category of Proton VPN Accessibility's commands in NVDA's Input Gestures dialog.
+msgid "Proton VPN"
+msgstr "Proton VPN"
+
+#. Translators: Description of the command that reads Proton VPN's connection status.
+msgid "Reports whether Proton VPN protects you, where you are connected and for how long"
+msgstr "Melaporkan apakah Proton VPN melindungi Anda, ke mana Anda tersambung, dan sudah berapa lama"
+
+#. Translators: Said when the Proton VPN main window, which shows the status, is not open.
+msgid "Status not available. Open Proton VPN's main window and try again."
+msgstr "Status tidak tersedia. Buka jendela utama Proton VPN, lalu coba lagi."

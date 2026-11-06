@@ -1,0 +1,48 @@
+# Checks every push to main and every pull request.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          # The version NVDA 2026 runs add-ons with.
+          python-version: "3.13"
+
+      - name: Install the development tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Run the tests
+        run: pytest
+
+      - name: Build the add-on
+        run: python build_addon.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: addon
+          path: dist/*.nvda-addon
